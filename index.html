@@ -3,63 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with AI Bot</title>
+    <title>Barber's Chat</title>
     <style>
-        /* Add basic styling for chat interface */
-        .chatbox {
-            width: 400px;
-            height: 500px;
-            border: 1px solid #ccc;
+        /* Optional: Some basic styling for your page */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: white;
             padding: 10px;
-            overflow-y: auto;
+            text-align: center;
         }
-        .user-message {
-            text-align: right;
-            color: blue;
-        }
-        .bot-message {
-            text-align: left;
-            color: green;
+        main {
+            padding: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>Talk to our AI Bot</h1>
-    <div class="chatbox" id="chatbox"></div>
-    <input type="text" id="user-input" placeholder="Type your message here..." />
-    <button onclick="sendMessage()">Send</button>
 
+    <header>
+        <h1>Welcome to Our Barber Shop</h1>
+        <p>Chat with us for bookings or any queries!</p>
+    </header>
+
+    <main>
+        <p>This is the main content of your page. Below is the chat widget you requested:</p>
+        <p>Feel free to interact with the bot!</p>
+    </main>
+
+    <!-- Chatbot Embed Code -->
+    <script src="https://api.barberpro.tn/barberbuddy.js"></script>
+    <div id="barber-buddy-chat"></div>
     <script>
-        const apiKey = 'TBG4582VBX9KMNPQ';  // Replace with your Meta Bot API key
-        const apiUrl = 'https://api.meta.com/bot-endpoint';  // Replace with the Meta Bot API URL
-
-        function sendMessage() {
-            const userInput = document.getElementById('user-input').value;
-            const chatbox = document.getElementById('chatbox');
-            
-            // Show user message in the chatbox
-            chatbox.innerHTML += `<div class="user-message">${userInput}</div>`;
-            document.getElementById('user-input').value = '';  // Clear input field
-
-            // Send message to the bot API
-            fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: JSON.stringify({ message: userInput })
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Display bot's response in the chatbox
-                chatbox.innerHTML += `<div class="bot-message">${data.response}</div>`;
-                chatbox.scrollTop = chatbox.scrollHeight;  // Scroll to bottom
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
+        BarberBuddy.init({ apiKey: 'TBG4582VBX9KMNPQ' });
     </script>
+
 </body>
 </html>
