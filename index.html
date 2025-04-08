@@ -1,5 +1,4 @@
 
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,7 +14,7 @@
 <h1>Barber Chat</h1>
 <div id="barber-buddy-chat">
  <textarea id="user-message" placeholder="Type your message..."></textarea>
- <button onclick="sendMessage()">Send</button>
+ <button id="send-button">Send</button>
  <div id="barber-buddy-response"></div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -25,7 +24,7 @@
     var messageId = 0;
     $.getScript("https://api.barberpro.tn/barberbuddy.js", function(){
       BarberBuddy.init({ apiKey: apiKey });
-      function sendMessage(){
+      $('#send-button').click(function(){
         var message = $('#user-message').val();
         $('#user-message').val('');
         BarberBuddy.sendMessage(message, function(response){
@@ -33,7 +32,7 @@
           $('#barber-buddy-response').append('<p style="color:blue">You: '+message+'</p><p style="color:green">'+response+'</p>');
           $('#barber-buddy-response').scrollTop($('#barber-buddy-response')[0].scrollHeight);
         });
-      }
+      });
     });
   });
 </script>
