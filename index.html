@@ -1,163 +1,29 @@
+
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barber's Chat</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        header {
-            background-color: #333;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        main {
-            padding: 20px;
-            text-align: center;
-        }
-
-        /* Styling for chat container */
-        #chat-container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        #messages {
-            max-height: 400px;
-            overflow-y: auto;
-            margin-bottom: 10px;
-            padding-right: 10px;
-        }
-
-        .message {
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #f1f1f1;
-            border-radius: 5px;
-            max-width: 80%;
-            word-wrap: break-word;
-        }
-
-        .user {
-            background-color: #d9f7d9;
-            text-align: left;
-        }
-
-        .bot {
-            background-color: #f1f1f1;
-            text-align: right;
-        }
-
-        #input-container {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        #user-input {
-            width: 80%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        #send-btn {
-            width: 15%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            background-color: #333;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        #send-btn:hover {
-            background-color: #555;
-        }
-    </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Barber Chat</title>
+ <style>
+  body { font-family: Arial; }
+  #barber-buddy-chat { width: 300px; height: 400px; border: 1px solid #ccc; padding: 10px; }
+ </style>
 </head>
 <body>
-
-    <header>
-        <h1>Welcome to Our Barber Shop</h1>
-        <p>Chat with us for bookings, queries, or anything else!</p>
-    </header>
-
-    <main>
-        <h2>BarberBuddy Chat</h2>
-        <p>Feel free to ask questions or book an appointment directly through the chat below.</p>
-        
-        <div id="chat-container">
-            <!-- Messages Area -->
-            <div id="messages"></div>
-
-            <!-- Input Area -->
-            <div id="input-container">
-                <input type="text" id="user-input" placeholder="Type your message...">
-                <button id="send-btn">Send</button>
-            </div>
-        </div>
-    </main>
-
-    <!-- Script to integrate BarberBuddy chat -->
-    <script src="https://api.barberpro.tn/barberbuddy.js"></script>
-    <script>
-        // Initialize BarberBuddy
-        BarberBuddy.init({
-            apiKey: 'TBG4582VBX9KMNPQ'
-        });
-
-        // Get references to DOM elements
-        const messagesContainer = document.getElementById('messages');
-        const userInput = document.getElementById('user-input');
-        const sendButton = document.getElementById('send-btn');
-
-        // Function to append a message to the chat area
-        function appendMessage(text, sender) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message');
-            messageDiv.classList.add(sender);
-            messageDiv.textContent = text;
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;  // Scroll to the bottom
-        }
-
-        // Send button functionality
-        sendButton.addEventListener('click', () => {
-            const messageText = userInput.value.trim();
-            if (messageText) {
-                // Append user message
-                appendMessage(messageText, 'user');
-                
-                // Simulate bot response (you can replace this with actual API call)
-                BarberBuddy.sendMessage(messageText, (response) => {
-                    appendMessage(response, 'bot');
-                });
-
-                // Clear the input field
-                userInput.value = '';
-            }
-        });
-
-        // Allow "Enter" key to send message
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendButton.click();
-            }
-        });
-    </script>
-
+<h1>Barber Chat</h1>
+<div id="barber-buddy-chat"></div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function(){
+    $.getScript("https://api.barberpro.tn/barberbuddy.js", function(){
+      BarberBuddy.init({ 
+        apiKey: 'TBG4582VBX9KMNPQ',
+        container: document.getElementById('barber-buddy-chat')
+      });
+    });
+  });
+</script>
 </body>
 </html>
