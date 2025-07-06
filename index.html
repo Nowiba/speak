@@ -1,27 +1,224 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Booking System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .booking-form {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="datetime-local"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .notification-banner {
+            background-color: #fff3cd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: 1px solid #ffeeba;
+        }
+    </style>
 </head>
 <body>
-<div id="chat-container">
-  <input id="message-input" type="text">
-  <button onclick="sendMessage()">Send</button>
-  <div id="chat-log"></div>
-</div>
-<script>
-  function sendMessage() {
-    var message = document.getElementById('message-input').value;
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', 'https://codepro.ai/api/chat', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('Authorization', 'Bearer CP-12345-XYZ-001');
-    xhr.send(JSON.stringify({ message: message }));
-    xhr.onload = function() {
-      var response = JSON.parse(xhr.responseText);
-      document.getElementById('chat-log').innerHTML += `<p>Me: ${message}</p><p>CodePro: ${response.reply}</p>`;
-      document.getElementById('message-input').value = '';
-    }
-  }
-</script>
+    <div class="container">
+        <h1>Appointment Booking System</h1>
+        
+        <!-- Notification permission banner -->
+        <div id="notificationBanner" class="notification-banner" style="display: none;">
+            <p>This website wants to send you push notifications.</p>
+            <button onclick="requestNotificationPermission()">Allow Notifications</button>
+        </div>
+
+        <!-- Booking form -->
+        <form id="bookingForm" class="booking-form">
+            <div class="form-group">
+                <label for="appointmentTime">Select Appointment Time:</label>
+                <input type="datetime-local" id="appointmentTime" required>
+            </div>
+            <button type="submit">Book Appointment</button>
+        </form>
+
+        <!-- Status display -->
+        <div id="statusMessage" style="margin-top: 20px; color: #28a745;"></div>
+    </div>
+
+    <!-- Firebase scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging.js"></script>
+    
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+    apiKey: "AIzaSyBMJuAmIAqDUXhZcGBHq8CszhJL92VaZ64",
+  authDomain: "information-project1.firebaseapp.com",
+  databaseURL: "https://information-project1-default-rtdb.firebaseio.com",
+  projectId: "information-project1",
+  storageBucket: "information-project1.firebasestorage.app",
+  messagingSenderId: "1098270976013",
+  appId: "1:1098270976013:web:2e1ca7602b316b6ed30d44",
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const messaging = firebase.messaging(app);
+
+        // Request notification permission
+        async function requestNotificationPermission() {
+            try {
+                const permission = await Notification.requestPermission();
+                
+                if (permission === 'granted') {
+                    console.log('Notification permission granted');
+                    
+                    // Get token
+                    const token = await messaging.getToken({
+                        vapidKey: 'BF0XL6TATWEVgiN1aZwrPws32D4AAxabxdRs0zXbKSarbfPlCIxpXjMC2F5ap52xFLDnP_TAYmInDPIM6vgzmeQ'
+                    });
+                    
+                    console.log('Token:', token);
+                    document.getElementById('notificationBanner').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error getting permission:', error);
+            }
+        }
+
+        // Booking form submission handler
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const appointmentTime = document.getElementById('appointmentTime').value;
+            const statusDisplay = document.getElementById('statusMessage');
+            
+            try {
+                // Save booking to Firebase Realtime Database
+                const db = firebase.database();
+                const bookingRef = db.ref('appointments');
+                
+                await bookingRef.push({
+                    time: appointmentTime,
+                    createdAt: Date.now()
+                });
+
+                // Schedule notifications
+                scheduleNotifications(appointmentTime);
+                
+                statusDisplay.textContent = 'Appointment booked successfully!';
+                statusDisplay.style.color = '#28a745';
+                
+                // Reset form
+                e.target.reset();
+            } catch (error) {
+                console.error('Error booking appointment:', error);
+                statusDisplay.textContent = 'Error booking appointment. Please try again.';
+                statusDisplay.style.color = '#dc3545';
+            }
+        });
+
+        // Schedule notifications
+        function scheduleNotifications(appointmentTime) {
+            const appointmentDate = new Date(appointmentTime);
+            
+            // Send immediate confirmation
+            setTimeout(async () => {
+                const token = await messaging.getToken({
+                    vapidKey: 'BF0XL6TATWEVgiN1aZwrPws32D4AAxabxdRs0zXbKSarbfPlCIxpXjMC2F5ap52xFLDnP_TAYmInDPIM6vgzmeQ'
+                });
+                
+                sendPushNotification(token, 'Appointment confirmed!');
+            }, 60000); // 1 minute delay
+            
+            // Send reminder notification
+            const reminderTime = new Date(appointmentDate.getTime() - 30 * 60 * 1000);
+            setTimeout(async () => {
+                const token = await messaging.getToken({
+                    vapidKey: 'YOUR_VAPID_PUBLIC_KEY'
+                });
+                
+                sendPushNotification(token, '30 minutes until your appointment!');
+            }, reminderTime - new Date());
+        }
+
+        // Function to send push notification
+        async function sendPushNotification(token, message) {
+            try {
+                const response = await fetch('YOUR_BACKEND_URL/send-notification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token: token,
+                        notification: {
+                            title: 'Appointment Reminder',
+                            body: message
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('Notification sent:', data);
+            } catch (error) {
+                console.error('Error sending notification:', error);
+            }
+        }
+
+        // Handle incoming notifications
+        messaging.onMessage((payload) => {
+            console.log('Received notification:', payload);
+            
+            const notificationTitle = payload.notification.title;
+            const notificationOptions = {
+                body: payload.notification.body,
+                icon: '/firebase-logo.png'
+            };
+            
+            registration.showNotification(notificationTitle, notificationOptions);
+        });
+
+        // Check notification permission status
+        if (Notification.permission === 'default') {
+            document.getElementById('notificationBanner').style.display = 'block';
+        }
+    </script>
 </body>
 </html>
